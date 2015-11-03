@@ -95,12 +95,18 @@ class ContentTypeListener
                     }
                     break;
                 }
-
-                if ($contentType && $contentType->match('application/json')) {
+                elseif ($contentType && $contentType->match('application/json')) {
+                    $content = $request->getContent();
                     $bodyParams = $this->decodeJson($content);
                     break;
                 }
-
+                elseif ($contentType && $contentType->match('application/offset+octet-stream')) {
+                    break;
+                }
+                
+                // Cannot get content if content type is 'application/offset+octet-stream'
+                // this destroy data into php://input stream, if they are too length for PHP configuration
+                $content = $request->getContent();
                 // Stolen from AbstractRestfulController
                 parse_str($content, $bodyParams);
                 if (!is_array($bodyParams)
